@@ -5,7 +5,8 @@ Libraries Used:
 * Glide V4 - https://bumptech.github.io/glide/
 * Retrofit - https://square.github.io/retrofit/
 * Android Architecture Components - https://developer.android.com/topic/libraries/architecture/
-* Rx Java - https://github.com/ReactiveX/RxJava
+* RxJava - https://github.com/ReactiveX/RxJava
+* Dagger 2 - https://google.github.io/dagger/
 
 ![screenshot_1546114887](https://user-images.githubusercontent.com/21308532/50542065-afef5b80-0bbb-11e9-9b5e-356932abbd53.png)
 ![one](https://user-images.githubusercontent.com/21308532/52183017-5d353f00-280c-11e9-8511-4a6534e7e312.png)
