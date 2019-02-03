@@ -2,6 +2,7 @@ package com.nanodegree.velaphi.popularmoviesstage1.features;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.nanodegree.velaphi.popularmoviesstage1.R;
+import com.nanodegree.velaphi.popularmoviesstage1.features.movieDetails.MovieDetailActivity;
 import com.nanodegree.velaphi.popularmoviesstage1.models.Movie;
 
 
@@ -52,18 +54,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
                 .apply(options)
                 .into(movieViewHolder.movieImageView);
 
-        movieViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, MovieDetailsActivity.class);
-                intent.putExtra(context.getString(R.string.movie_title_key), movie.getTitle());
-                intent.putExtra(context.getString(R.string.backdrop_url_key), movie.getBackdropPath());
-                intent.putExtra(context.getString(R.string.poster_url_key), movie.getPosterPath());
-                intent.putExtra(context.getString(R.string.release_date_key), movie.getReleaseDate());
-                intent.putExtra(context.getString(R.string.rating_key), movie.getVoteAverage());
-                intent.putExtra(context.getString(R.string.plot_key), movie.getOverview());
-                context.startActivity(intent);
-            }
+        movieViewHolder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MovieDetailActivity.class);
+//                intent.putExtra(context.getString(R.string.movie_title_key), movie.getTitle());
+//                intent.putExtra(context.getString(R.string.backdrop_url_key), movie.getBackdropPath());
+//                intent.putExtra(context.getString(R.string.poster_url_key), movie.getPosterPath());
+//                intent.putExtra(context.getString(R.string.release_date_key), movie.getReleaseDate());
+//                intent.putExtra(context.getString(R.string.rating_key), movie.getVoteAverage());
+//                intent.putExtra(context.getString(R.string.plot_key), movie.getOverview());
+//                intent.putExtra(context.getString(R.string.id_key), movie.getId());
+
+            intent.putExtra("movie", movie);
+            context.startActivity(intent);
         });
     }
 
@@ -72,7 +74,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         return movieList.size();
     }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder{
+    class MovieViewHolder extends RecyclerView.ViewHolder{
 
         Context context;
         ImageView movieImageView;

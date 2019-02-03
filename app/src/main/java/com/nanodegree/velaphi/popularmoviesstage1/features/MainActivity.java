@@ -1,9 +1,7 @@
 package com.nanodegree.velaphi.popularmoviesstage1.features;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,8 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.nanodegree.velaphi.popularmoviesstage1.MoviesApplication;
 import com.nanodegree.velaphi.popularmoviesstage1.R;
+import com.nanodegree.velaphi.popularmoviesstage1.injection.MoviesFactory;
+import com.nanodegree.velaphi.popularmoviesstage1.models.Movie;
 import com.nanodegree.velaphi.popularmoviesstage1.models.PopularMoviesResponse;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity{
     RecyclerView movieListRecyclerView;
     MoviesAdapter moviesAdapter;
     Toolbar toolbar;
+    MoviesApplication application;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,16 @@ public class MainActivity extends AppCompatActivity{
         setupView();
         setupViewModel();
         viewModel.retrievePopularMovies();
+        viewModel.retrieveFavMovies();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState (outState);
+    }
+
+    protected void onRestoreInstanceState(Bundle savedState) {
+        super.onRestoreInstanceState (savedState);
     }
 
     private void setupView() {
@@ -47,12 +61,9 @@ public class MainActivity extends AppCompatActivity{
         errorMessageTextView.setVisibility(View.GONE);
         tryAgainButton = findViewById(R.id.try_again_button);
 
-        tryAgainButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               finish();
-               startActivity(getIntent());
-            }
+        tryAgainButton.setOnClickListener(v -> {
+           finish();
+           startActivity(getIntent());
         });
 
         tryAgainButton.setVisibility(View.GONE);
@@ -72,9 +83,13 @@ public class MainActivity extends AppCompatActivity{
                 String selectedItem = parent.getItemAtPosition(position).toString();
                 if(!(selectedItem.equalsIgnoreCase(toolbar.getTitle().toString()))){
                     setToolBarTitle(parent.getItemAtPosition(position).toString());
-                    if(selectedItem.equalsIgnoreCase(getString((R.string.popular)))){
+
+                    if(selectedItem.equalsIgnoreCase(getString((R.string.favorites)))){
+                         observeFavMovies();
+                        viewModel.retrieveFavMovies();
+                    }else if(selectedItem.equalsIgnoreCase(getString((R.string.popular)))){
                         viewModel.retrievePopularMovies();
-                    }else{
+                    }else if(selectedItem.equalsIgnoreCase(getString((R.string.rated)))){
                         viewModel.retrieveTopRatedMovies();
                     }
                 }
@@ -93,45 +108,51 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void setupViewModel() {
-        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        application = (MoviesApplication) this.getApplication();
+        viewModel = ViewModelProviders.of(this, new MoviesFactory(application)).get(MainActivityViewModel.class);
         observeMovies();
         observeErrorMessage();
     }
 
+    private void observeFavMovies() {
+        viewModel.favMovieListMutableLiveData.observe(this, movies -> {
+            if(movies != null && movies.size() >0){
+                hidErrorMessage();
+                setRecyclerView(movies);
+            }else{
+                displayErrorMessage();
+            }
+        });
+    }
+
     private void observeErrorMessage() {
-        viewModel.errorStatus.observe(this, new Observer<Throwable>() {
-            @Override
-            public void onChanged(@Nullable Throwable throwable) {
-                if(throwable != null)
-                {
-                    progressBar.setVisibility(View.GONE);
-                    errorMessageTextView.setVisibility(View.VISIBLE);
-                    tryAgainButton.setVisibility(View.VISIBLE);
-                }
+        viewModel.errorStatus.observe(this, throwable -> {
+            if(throwable != null)
+            {
+                progressBar.setVisibility(View.GONE);
+                errorMessageTextView.setVisibility(View.VISIBLE);
+                tryAgainButton.setVisibility(View.VISIBLE);
             }
         });
     }
 
     private void observeMovies() {
-        viewModel.popularMoviesResponseMutableLiveData.observe(this, new Observer<PopularMoviesResponse>() {
-            @Override
-            public void onChanged(@Nullable PopularMoviesResponse popularMoviesResponse) {
-                if(popularMoviesResponse == null)
-                {
-                    displayErrorMessage();
-                }else{
-                    hidErrorMessage();
-                    setRecyclerView(popularMoviesResponse);
-                }
-
+        viewModel.popularMoviesResponseMutableLiveData.observe(this, popularMoviesResponse -> {
+            if(popularMoviesResponse == null)
+            {
+                displayErrorMessage();
+            }else{
+                hidErrorMessage();
+                setRecyclerView(popularMoviesResponse.getMovieList());
             }
+
         });
     }
 
-    private void setRecyclerView(PopularMoviesResponse popularMoviesResponse) {
+    private void setRecyclerView(List<Movie> movies) {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         movieListRecyclerView.setLayoutManager(gridLayoutManager);
-        moviesAdapter = new MoviesAdapter(popularMoviesResponse.getMovieList(), this);
+        moviesAdapter = new MoviesAdapter(movies, this);
         movieListRecyclerView.setAdapter(moviesAdapter);
     }
 

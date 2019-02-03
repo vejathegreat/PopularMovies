@@ -2,6 +2,8 @@
     <string name="app_name">Popular Movies Stage 1</string>
     <string name="api_key">5028fde5e3652cfd9ac738403e7d0787</string>
     <string name="image_base_url">https://image.tmdb.org/t/p/w500</string>
+    <string name="thumbnail_url">https://img.youtube.com/vi/%s/hqdefault.jpg"</string>
+    <string name="video_url">https://www.youtube.com/watch?v=%s</string>
 
     <string name="error_message">Oops Something went wrong. \nCheck your network settings and try again.</string>
     <string name="try_again">Try Again</string>
@@ -9,6 +11,7 @@
     <string-array name="sort_options_array">
         <item>Most Popular</item>
         <item>Top Rated</item>
+        <item>Favorites</item>
     </string-array>
 
     <string name="action_settings">Settings</string>
@@ -22,8 +25,20 @@
     <string name="poster_url_key">POSTER</string>
     <string name="backdrop_url_key">BACKDROP</string>
     <string name="movies">Movies</string>
+    <string name="id_key">ID</string>
 
-    <string name= "popular">Most Popular</string>
-    <string name= "rated">Top Rated</string>
+    <string name="popular">Most Popular</string>
+    <string name="rated">Top Rated</string>
+    <string name="favorites">Favorites</string>
     <string name="sort_by">Sort By:</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="title_activity_movie_detail">MovieDetailActivity</string>
+    <string name="movie_overview">Movie Overview</string>
+
+    <string name="reviewer">Reviewer:</string>
+    <string name="see_more">Read More…</string>
+    <string name="see_less">Read less</string>
+    <string name="reviews">Reviews</string>
+    <string name="plot_synopsis">Plot Synopsis</string>
+    <string name="watch_trailer">Watch Trailer</string>
 </resources>

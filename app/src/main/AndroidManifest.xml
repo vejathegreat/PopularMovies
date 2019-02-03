@@ -3,8 +3,11 @@
     package="com.nanodegree.velaphi.popularmoviesstage1">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".MoviesApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -18,11 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".features.MovieDetailsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".features.MainActivity" />
-            </activity>
+        <activity
+            android:name=".features.movieDetails.MovieDetailActivity"
+            android:label="@string/title_activity_movie_detail"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
