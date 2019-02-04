@@ -41,4 +41,5 @@
     <string name="reviews">Reviews</string>
     <string name="plot_synopsis">Plot Synopsis</string>
     <string name="watch_trailer">Watch Trailer</string>
+    <string name="you_don_t_have_any_favorite_movies">You don\'t have any favorite movies!</string>
 </resources>
