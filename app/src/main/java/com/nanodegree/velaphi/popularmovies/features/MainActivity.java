@@ -2,6 +2,7 @@ package com.nanodegree.velaphi.popularmovies.features;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,21 +22,31 @@ import com.nanodegree.velaphi.popularmovies.models.Movie;
 
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity{
 
     ProgressBar progressBar;
     MainActivityViewModel viewModel;
     TextView errorMessageTextView;
+    TextView emptyFavoritesTextView;
     Button tryAgainButton;
     RecyclerView movieListRecyclerView;
+    RecyclerView.LayoutManager mLayoutManager;
     MoviesAdapter moviesAdapter;
     Toolbar toolbar;
     MoviesApplication application;
+    List<Movie> movies;
+    Parcelable state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState != null){
+            state = savedInstanceState.getParcelable("movies");
+        }
+
         toolbar = findViewById(R.id.toolbar);
         setToolBarTitle(getString(R.string.popular));
         setupSpinner();
@@ -43,22 +54,38 @@ public class MainActivity extends AppCompatActivity{
         setupViewModel();
         viewModel.retrievePopularMovies();
         viewModel.retrieveFavMovies();
+
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        state = mLayoutManager.onSaveInstanceState();
+        outState.putParcelable("movies", state);
         super.onSaveInstanceState (outState);
     }
 
     protected void onRestoreInstanceState(Bundle savedState) {
         super.onRestoreInstanceState (savedState);
+        if(savedState != null) {
+            state = savedState.getParcelable("movies");
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(state!=null)
+            movieListRecyclerView.getLayoutManager().onRestoreInstanceState(state);
     }
 
     private void setupView() {
+        mLayoutManager = new GridLayoutManager(this, 2);
         progressBar = findViewById(R.id.progressBar_movies);
         errorMessageTextView = findViewById(R.id.error_textView);
         errorMessageTextView.setVisibility(View.GONE);
         tryAgainButton = findViewById(R.id.try_again_button);
+        emptyFavoritesTextView = findViewById(R.id.errorFavTextView);
 
         tryAgainButton.setOnClickListener(v -> {
            finish();
@@ -117,10 +144,12 @@ public class MainActivity extends AppCompatActivity{
         viewModel.favMovieListMutableLiveData.observe(this, movies -> {
             if(movies != null && movies.size() >0){
                 hidErrorMessage();
-                setRecyclerView(movies);
+                this.movies = movies;
             }else{
-                displayErrorMessage();
+                this.movies.clear();
+                emptyFavoritesTextView.setVisibility(View.VISIBLE);
             }
+            setRecyclerView();
         });
     }
 
@@ -142,13 +171,14 @@ public class MainActivity extends AppCompatActivity{
                 displayErrorMessage();
             }else{
                 hidErrorMessage();
-                setRecyclerView(popularMoviesResponse.getMovieList());
+                movies = popularMoviesResponse.getMovieList();
+                setRecyclerView();
             }
 
         });
     }
 
-    private void setRecyclerView(List<Movie> movies) {
+    private void setRecyclerView() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         movieListRecyclerView.setLayoutManager(gridLayoutManager);
         moviesAdapter = new MoviesAdapter(movies, this);
@@ -163,6 +193,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void hidErrorMessage() {
+        emptyFavoritesTextView.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         errorMessageTextView.setVisibility(View.GONE);
         tryAgainButton.setVisibility(View.GONE);

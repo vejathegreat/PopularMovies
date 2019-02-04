@@ -59,6 +59,5 @@ dependencies {
     annotationProcessor "com.google.dagger:dagger-compiler:${rootProject.dagger_version}"
     androidTestImplementation "com.google.dagger:dagger-compiler:${rootProject.dagger_version}"
 
-    implementation 'com.facebook.stetho:stetho:1.5.0'
 
 }
