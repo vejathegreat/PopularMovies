@@ -3,6 +3,7 @@ package com.nanodegree.velaphi.popularmovies.features.movieDetails;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -24,7 +25,7 @@ import com.nanodegree.velaphi.popularmovies.R;
 import com.nanodegree.velaphi.popularmovies.injection.MoviesFactory;
 import com.nanodegree.velaphi.popularmovies.models.Movie;
 import com.nanodegree.velaphi.popularmovies.models.Review;
-import com.nanodegree.velaphi.popularmovies.models.TrailersResponse;
+import com.nanodegree.velaphi.popularmovies.models.Trailer;
 
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +44,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView reviewsHeaderTextView;
     TextView trailersHeaderTextView;
     Movie movie;
-
+    List<Review>reviews;
+    List<Trailer>trailers;
     FloatingActionButton favoriteFab;
 
     @Override
@@ -66,14 +68,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState (outState);
-    }
 
-    protected void onRestoreInstanceState(Bundle savedState) {
-        super.onRestoreInstanceState (savedState);
-    }
 
     private void setupFavorites() {
         MoviesApplication application = (MoviesApplication) this.getApplication();
@@ -118,7 +113,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieDetailsViewModel.trailersResponseMutableLiveData.observe(this, trailersResponse -> {
             if(trailersResponse != null) {
                 if(!trailersResponse.getTrailers().isEmpty()) {
-                    displayTrailers(trailersResponse);
+                    trailers = trailersResponse.getTrailers();
+                    displayTrailers(trailers);
                 }
             }
         });
@@ -128,14 +124,15 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieDetailsViewModel.reviewResponseResponseMutableLiveData.observe(this, reviewResponse -> {
             if(reviewResponse != null)
                 if(!reviewResponse.getReviews().isEmpty()){
-                    displayReview(reviewResponse.getReviews());
+                    reviews = reviewResponse.getReviews();
+                    displayReview(reviews);
                 }
             });
     }
 
-    private void displayTrailers(TrailersResponse trailersResponse) {
+    private void displayTrailers(List<Trailer> trailerList) {
         trailersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        TrailersAdapter trailersAdapter = new TrailersAdapter(trailersResponse.getTrailers(), this);
+        TrailersAdapter trailersAdapter = new TrailersAdapter(trailerList, this);
         trailersRecyclerView.setHasFixedSize(true);
         trailersRecyclerView.setAdapter(trailersAdapter);
         trailersHeaderTextView.setVisibility(View.VISIBLE);

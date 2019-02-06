@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity{
     MainActivityViewModel viewModel;
     TextView errorMessageTextView;
     TextView emptyFavoritesTextView;
+    TextView sortCriteriaTextView;
     Button tryAgainButton;
     RecyclerView movieListRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
@@ -36,49 +37,44 @@ public class MainActivity extends AppCompatActivity{
     Toolbar toolbar;
     MoviesApplication application;
     List<Movie> movies;
-    Parcelable state;
+   Parcelable mListState;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState != null){
-            state = savedInstanceState.getParcelable("movies");
-        }
-
         toolbar = findViewById(R.id.toolbar);
-        setToolBarTitle(getString(R.string.popular));
+        setToolBarTitle(getString(R.string.app_name));
         setupSpinner();
         setupView();
         setupViewModel();
-        viewModel.retrievePopularMovies();
-        viewModel.retrieveFavMovies();
+        setRecyclerView();
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        state = mLayoutManager.onSaveInstanceState();
-        outState.putParcelable("movies", state);
-        super.onSaveInstanceState (outState);
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        mListState = mLayoutManager.onSaveInstanceState();
+        state.putParcelable("movies", mListState);
     }
 
-    protected void onRestoreInstanceState(Bundle savedState) {
-        super.onRestoreInstanceState (savedState);
-        if(savedState != null) {
-            state = savedState.getParcelable("movies");
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
 
-        }
+        if(state != null)
+            mListState = state.getParcelable("movies");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(state!=null)
-            movieListRecyclerView.getLayoutManager().onRestoreInstanceState(state);
-    }
 
+        if (mListState != null) {
+            mLayoutManager.onRestoreInstanceState(mListState);
+        }
+    }
     private void setupView() {
         mLayoutManager = new GridLayoutManager(this, 2);
         progressBar = findViewById(R.id.progressBar_movies);
@@ -86,6 +82,7 @@ public class MainActivity extends AppCompatActivity{
         errorMessageTextView.setVisibility(View.GONE);
         tryAgainButton = findViewById(R.id.try_again_button);
         emptyFavoritesTextView = findViewById(R.id.errorFavTextView);
+        sortCriteriaTextView = findViewById(R.id.criteria_selection_textview);
 
         tryAgainButton.setOnClickListener(v -> {
            finish();
@@ -108,8 +105,8 @@ public class MainActivity extends AppCompatActivity{
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = parent.getItemAtPosition(position).toString();
                 if(!(selectedItem.equalsIgnoreCase(toolbar.getTitle().toString()))){
-                    setToolBarTitle(parent.getItemAtPosition(position).toString());
-
+                    if(position != 0)
+                        setToolBarTitle(parent.getItemAtPosition(position).toString());
                     if(selectedItem.equalsIgnoreCase(getString((R.string.favorites)))){
                          observeFavMovies();
                         viewModel.retrieveFavMovies();
@@ -145,11 +142,12 @@ public class MainActivity extends AppCompatActivity{
             if(movies != null && movies.size() >0){
                 hidErrorMessage();
                 this.movies = movies;
+                moviesAdapter.setItem(movies);
             }else{
                 this.movies.clear();
+                moviesAdapter.setItem(movies);
                 emptyFavoritesTextView.setVisibility(View.VISIBLE);
             }
-            setRecyclerView();
         });
     }
 
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity{
             }else{
                 hidErrorMessage();
                 movies = popularMoviesResponse.getMovieList();
-                setRecyclerView();
+                moviesAdapter.setItem(movies);
             }
 
         });
@@ -181,7 +179,8 @@ public class MainActivity extends AppCompatActivity{
     private void setRecyclerView() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         movieListRecyclerView.setLayoutManager(gridLayoutManager);
-        moviesAdapter = new MoviesAdapter(movies, this);
+        moviesAdapter = new MoviesAdapter(this);
+        moviesAdapter.setItem(movies);
         movieListRecyclerView.setAdapter(moviesAdapter);
     }
 
@@ -193,6 +192,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void hidErrorMessage() {
+        sortCriteriaTextView.setVisibility(View.GONE);
         emptyFavoritesTextView.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         errorMessageTextView.setVisibility(View.GONE);
