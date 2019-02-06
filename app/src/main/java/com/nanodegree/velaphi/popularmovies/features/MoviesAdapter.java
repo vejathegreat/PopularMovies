@@ -26,8 +26,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private List<Movie> movieList;
     private Context context;
 
-    public MoviesAdapter(List<Movie> movieList, Context context) {
-        this.movieList = movieList;
+    public MoviesAdapter(Context context) {
         this.context = context;
     }
 
@@ -55,14 +54,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         movieViewHolder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MovieDetailActivity.class);
-//                intent.putExtra(context.getString(R.string.movie_title_key), movie.getTitle());
-//                intent.putExtra(context.getString(R.string.backdrop_url_key), movie.getBackdropPath());
-//                intent.putExtra(context.getString(R.string.poster_url_key), movie.getPosterPath());
-//                intent.putExtra(context.getString(R.string.release_date_key), movie.getReleaseDate());
-//                intent.putExtra(context.getString(R.string.rating_key), movie.getVoteAverage());
-//                intent.putExtra(context.getString(R.string.plot_key), movie.getOverview());
-//                intent.putExtra(context.getString(R.string.id_key), movie.getId());
-
             intent.putExtra("movie", movie);
             context.startActivity(intent);
         });
@@ -70,7 +61,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public int getItemCount() {
-        return movieList.size();
+        if (movieList != null)
+            return movieList.size();
+        else
+            return 0;
+    }
+
+    public  void setItem(List<Movie>movieList){
+        this.movieList = movieList;
+        notifyDataSetChanged();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder{
